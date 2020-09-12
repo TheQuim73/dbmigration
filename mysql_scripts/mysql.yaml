@@ -1,0 +1,55 @@
+#apiVersion: v1
+#kind: Delpoyment
+#metadata:
+#  name: mysql-pod
+#  labels:
+#    app: mysql
+#spec:
+#  containers:
+#  - name: mysql-container
+#    image: mysql/mysql-server:8.0.21
+#    env:
+#    - name: "MYSQL_ROOT_PASSWORD"
+#      value: test
+      
+      
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-app1
+  labels:
+    app: mysql
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      volumes:
+      - name: script-volume
+        hostPath:
+          # directory location on host
+          path: /tmp/update_user_table.sql
+          # this field is optional
+          type: FileOrCreate    
+      containers:
+      - name: mysql-app1
+        image: mysql/mysql-server:8.0.21
+        env:
+        - name: "MYSQL_ROOT_PASSWORD" #demo purposes only, do not attempt in production.
+          value: test
+        - name: "MYSQL_SCRIPT"
+          value: "update mysql.user set host = '%' where user='root';"
+        #command: ["mysql -u root -p$MYSQL_ROOT_PASSWORD < /scripts/update_user_table.sql"]
+        volumeMounts:
+        - mountPath: /scripts/update_user_table.sql
+          name: script-volume
+        command: ["mysql -u root -p$MYSQL_ROOT_PASSWORD < $MYSQL_SCRIPT"]
+
+
+
+     

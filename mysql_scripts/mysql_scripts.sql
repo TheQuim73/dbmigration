@@ -1,6 +1,6 @@
 /*MySQL Creation Script*/
 
---First create the user to be used throughout the entire demonstration. Script
+/*First create the user to be used throughout the entire demonstration. Script*/
 
 DROP USER IF EXISTS '_MigrationAdmin';
 
@@ -14,7 +14,7 @@ FLUSH PRIVILEGES;
 
 /* CREATE databases then fill in with bs data*/
 DROP DATABASE  IF EXISTS _appMonolith;
-CREATE DATABASE IF NOT EXISTS _appMonolith;
+CREATE DATABASE _appMonolith;
 
 USE _appMonolith;
 
@@ -33,9 +33,18 @@ CREATE PROCEDURE _buildDB()
 			DEALLOCATE PREPARE stmt;
 			
 			/*Now create insert statements*/
-			SET @
+			SET @v=0;
+				WHILE @v <=1000 DO
+					SET @q = CONCAT('INSERT INTO `appMonolith',@y,'` (_GUID) VALUES(UUID())');
+					PREPARE ins_stmt from @q;
+					EXECUTE ins_stmt;
+					DEALLOCATE PREPARE ins_stmt;		
+                    SET @v = @v + 1;
+				END WHILE;
 		SET @y = @y + 1 ;
-    END WHILE;
+		END WHILE;
 END$$
 DELIMITER ;
+
+
 call _buildDB();
